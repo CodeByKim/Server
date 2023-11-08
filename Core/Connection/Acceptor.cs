@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
+
+using Core.Server;
 
 namespace Core.Connection
 {
@@ -15,8 +14,7 @@ namespace Core.Connection
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            var port = 8888;
-            _endPoint = new IPEndPoint(IPAddress.Any, port);
+            _endPoint = new IPEndPoint(IPAddress.Any, Server.Server.Config.PortNumber);
         }
 
         public async void Run()
