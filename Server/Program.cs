@@ -4,10 +4,10 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        Acceptor acceptor = new Acceptor();
-        acceptor.Initialize();
+        GameServer server = new GameServer();
+        server.Initialize();
 
-        acceptor.Run();
+        server.Run();
 
         Console.ReadLine();
     }

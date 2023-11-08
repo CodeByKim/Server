@@ -4,9 +4,12 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 
-public class Connection
+namespace Core.Connection
 {
-    public Connection()
+    public class Connection
     {
+        public Connection()
+        {
+        }
     }
 }
