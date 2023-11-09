@@ -8,13 +8,13 @@ using Core.Connection;
 
 namespace Core.Server
 {
-    public abstract class Server
+    public abstract class BaseServer
     {
         internal static ServerConfig Config { get; private set; }
 
         private Acceptor _acceptor;
 
-        public Server()
+        public BaseServer()
         {
             _acceptor = new Acceptor();
         }

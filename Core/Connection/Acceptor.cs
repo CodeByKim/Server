@@ -14,7 +14,7 @@ namespace Core.Connection
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            _endPoint = new IPEndPoint(IPAddress.Any, Server.Server.Config.PortNumber);
+            _endPoint = new IPEndPoint(IPAddress.Any, BaseServer.Config.PortNumber);
         }
 
         public async void Run()

@@ -4,10 +4,7 @@ using System.Threading.Tasks;
 
 using Core.Server;
 
-using System.Text.Json;
-using System.IO;
-
-internal class GameServer : Server
+internal class GameServer : BaseServer
 {
     public override void Initialize(string configPath)
     {
