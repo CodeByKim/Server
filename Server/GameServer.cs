@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Connection;
 using Core.Server;
+using Core.Util;
 
 internal class GameServer : BaseServer
 {
@@ -10,16 +11,16 @@ internal class GameServer : BaseServer
     {
         base.Initialize(configPath);
 
-        Console.WriteLine("initialize server...");
+        Logger.Info("initialize server...");
     }
 
     protected override void OnNewConnection(BaseConnection conn)
     {
-        Console.WriteLine("OnNewConnection: " + conn.GetHashCode());
+        Logger.Info($"OnNewConnection: {conn.GetHashCode()}");
     }
 
     protected override void OnDisconnected(BaseConnection conn, DisconnectReason reason)
     {
-        Console.WriteLine("OnDisconnected: " + conn.GetHashCode());
+        Logger.Info($"OnDisconnected: {conn.GetHashCode()}, Reason: {reason.ToString()}");
     }
 }

@@ -7,8 +7,4 @@
     <BaseOutputPath>$(SolutionDir)/Binary</BaseOutputPath>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Util\" />
-  </ItemGroup>
-
 </Project>
