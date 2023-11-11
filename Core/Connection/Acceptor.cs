@@ -9,6 +9,12 @@ namespace Core.Connection
     {
         private Socket _socket;
         private IPEndPoint _endPoint;
+        private BaseServer _server;
+
+        public Acceptor(BaseServer server)
+        {
+            _server = server;
+        }
 
         public void Initialize()
         {
@@ -36,7 +42,8 @@ namespace Core.Connection
         private void OnNewClient(Socket socket)
         {
             Console.WriteLine("OnNewClient...: " + Thread.CurrentThread.ManagedThreadId);
-            Console.WriteLine("Hello NewSocket: " + socket.GetHashCode());
+
+            _server.AcceptNewClient(socket);
         }
     }
 }

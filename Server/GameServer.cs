@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using Core.Connection;
 using Core.Server;
 
 internal class GameServer : BaseServer
@@ -11,5 +11,15 @@ internal class GameServer : BaseServer
         base.Initialize(configPath);
 
         Console.WriteLine("initialize server...");
+    }
+
+    protected override void OnNewConnection(BaseConnection conn)
+    {
+        Console.WriteLine("OnNewConnection: " + conn.GetHashCode());
+    }
+
+    protected override void OnDisconnected(BaseConnection conn)
+    {
+        Console.WriteLine("OnDisconnected: " + conn.GetHashCode());
     }
 }
