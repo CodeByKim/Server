@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using Core.Server;
 using System.Threading.Channels;
 using System.Text;
+using Core.Util;
 
 namespace Core.Connection
 {
@@ -28,15 +29,14 @@ namespace Core.Connection
             {
                 var bytesRead = await _socket.ReceiveAsync(tempBuffer);
                 var message = Encoding.UTF8.GetString(tempBuffer.Array, 0, bytesRead);
-                Console.WriteLine("From " + GetHashCode() + ": "+ message);
+
+                Logger.Info($"From: {GetHashCode()}, message: {message}");
 
                 ReceiveAsync();
 
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-
                 _server.Disconnect(this, DisconnectReason.RemoteClosing);
             }
         }

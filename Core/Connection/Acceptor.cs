@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 
 using Core.Server;
+using Core.Util;
 
 namespace Core.Connection
 {
@@ -27,12 +28,10 @@ namespace Core.Connection
         {
             _socket.Bind(_endPoint);
 
-            var backlog = 100;
-            _socket.Listen(backlog);
+            _socket.Listen(BaseServer.Config.Backlog);
 
             while (true)
             {
-                Console.WriteLine("Listen...: " + Thread.CurrentThread.ManagedThreadId);
                 var clientSocket = await _socket.AcceptAsync();
 
                 OnNewClient(clientSocket);
@@ -41,8 +40,6 @@ namespace Core.Connection
 
         private void OnNewClient(Socket socket)
         {
-            Console.WriteLine("OnNewClient...: " + Thread.CurrentThread.ManagedThreadId);
-
             _server.AcceptNewClient(socket);
         }
     }
