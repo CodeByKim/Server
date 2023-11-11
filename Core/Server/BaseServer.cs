@@ -7,25 +7,28 @@ using System.Net.Sockets;
 using System.Text.Json;
 
 using Core.Connection;
+using Microsoft.Extensions.ObjectPool;
+using Core.Util;
 
 namespace Core.Server
 {
-    public abstract class BaseServer
+    public abstract class BaseServer<TConnection>
+        where TConnection : BaseConnection<TConnection>, new()
     {
-        internal static ServerConfig Config { get; private set; }
-
         private Acceptor _acceptor;
+        private DefaultObjectPool<TConnection> _connectionPool;
 
         public BaseServer()
         {
-            _acceptor = new Acceptor(this);
+            _acceptor = new Acceptor();
+            _connectionPool = new DefaultObjectPool<TConnection>(new ConnectionPooledObjectPolicy<TConnection>(), 100);
         }
 
         public virtual void Initialize(string configPath)
         {
-            LoadConfig(configPath);
+            ServerConfig.Load(configPath);
 
-            _acceptor.Initialize();
+            _acceptor.Initialize(AcceptNewClient);
         }
 
         public void Run()
@@ -35,25 +38,23 @@ namespace Core.Server
 
         internal void AcceptNewClient(Socket socket)
         {
-            var conn = new BaseConnection(socket, this);
+            var conn = _connectionPool.Get();
+            conn.Initialize(socket, this);
+
             OnNewConnection(conn);
 
             conn.ReceiveAsync();
         }
 
-        internal void Disconnect(BaseConnection conn, DisconnectReason reason)
+        internal void Disconnect(TConnection conn, DisconnectReason reason)
         {
             OnDisconnected(conn, reason);
+
+            _connectionPool.Return(conn);
         }
 
-        private void LoadConfig(string path)
-        {
-            var rawData = File.ReadAllText(path);
-            Config = JsonSerializer.Deserialize<ServerConfig>(rawData);
-        }
+        protected abstract void OnNewConnection(TConnection conn);
 
-        protected abstract void OnNewConnection(BaseConnection conn);
-
-        protected abstract void OnDisconnected(BaseConnection conn, DisconnectReason reason);
+        protected abstract void OnDisconnected(TConnection conn, DisconnectReason reason);
     }
 }

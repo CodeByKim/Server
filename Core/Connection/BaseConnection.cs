@@ -1,24 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Data.Common;
 using System.Net;
 using System.Net.Sockets;
-using Core.Server;
-using System.Threading.Channels;
 using System.Text;
+
+using Core.Server;
 using Core.Util;
 
 namespace Core.Connection
 {
-    public class BaseConnection
+    public class BaseConnection<TConnection>
+        where TConnection : BaseConnection<TConnection>, new()
     {
         private Socket _socket;
-        private BaseServer _server;
+        private BaseServer<TConnection> _server;
 
-        public BaseConnection(Socket socket, BaseServer server)
+        public BaseConnection()
+        {
+        }
+
+        internal void Initialize(Socket socket, BaseServer<TConnection> server)
         {
             _socket = socket;
             _server = server;
+        }
+
+        internal void Release()
+        {
+            Logger.Info($"Release Connection: {GetHashCode()}");
         }
 
         internal async void ReceiveAsync()
@@ -27,8 +37,8 @@ namespace Core.Connection
 
             try
             {
-                var bytesRead = await _socket.ReceiveAsync(tempBuffer);
-                var message = Encoding.UTF8.GetString(tempBuffer.Array, 0, bytesRead);
+                var byteTransfer = await _socket.ReceiveAsync(tempBuffer);
+                var message = Encoding.UTF8.GetString(tempBuffer.Array, 0, byteTransfer);
 
                 Logger.Info($"From: {GetHashCode()}, message: {message}");
 
@@ -37,7 +47,7 @@ namespace Core.Connection
             }
             catch (Exception e)
             {
-                _server.Disconnect(this, DisconnectReason.RemoteClosing);
+                _server.Disconnect(this as TConnection, DisconnectReason.RemoteClosing);
             }
         }
     }

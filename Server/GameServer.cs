@@ -5,7 +5,7 @@ using Core.Connection;
 using Core.Server;
 using Core.Util;
 
-internal class GameServer : BaseServer
+internal class GameServer : BaseServer<GameConnection>
 {
     public override void Initialize(string configPath)
     {
@@ -14,12 +14,12 @@ internal class GameServer : BaseServer
         Logger.Info("initialize server...");
     }
 
-    protected override void OnNewConnection(BaseConnection conn)
+    protected override void OnNewConnection(GameConnection conn)
     {
         Logger.Info($"OnNewConnection: {conn.GetHashCode()}");
     }
 
-    protected override void OnDisconnected(BaseConnection conn, DisconnectReason reason)
+    protected override void OnDisconnected(GameConnection conn, DisconnectReason reason)
     {
         Logger.Info($"OnDisconnected: {conn.GetHashCode()}, Reason: {reason.ToString()}");
     }

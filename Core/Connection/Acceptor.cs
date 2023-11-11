@@ -10,37 +10,33 @@ namespace Core.Connection
     {
         private Socket _socket;
         private IPEndPoint _endPoint;
-        private BaseServer _server;
+        private Action<Socket> _onNewClient;
 
-        public Acceptor(BaseServer server)
+        public Acceptor()
         {
-            _server = server;
         }
 
-        public void Initialize()
+        public void Initialize(Action<Socket> onNewClient)
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            _endPoint = new IPEndPoint(IPAddress.Any, BaseServer.Config.PortNumber);
+            _endPoint = new IPEndPoint(IPAddress.Any, ServerConfig.Instance.PortNumber);
+
+            _onNewClient = onNewClient;
         }
 
         public async void Run()
         {
             _socket.Bind(_endPoint);
 
-            _socket.Listen(BaseServer.Config.Backlog);
+            _socket.Listen(ServerConfig.Instance.Backlog);
 
             while (true)
             {
                 var clientSocket = await _socket.AcceptAsync();
 
-                OnNewClient(clientSocket);
+                _onNewClient(clientSocket);
             }
-        }
-
-        private void OnNewClient(Socket socket)
-        {
-            _server.AcceptNewClient(socket);
         }
     }
 }

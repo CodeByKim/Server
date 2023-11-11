@@ -7,10 +7,20 @@ using System.Threading.Tasks;
 
 namespace Core.Server
 {
-    internal class ServerConfig
+    public class ServerConfig
     {
         public int PortNumber { get; set; } = 10000;
 
         public int Backlog { get; set; } = 10;
+
+        private static ServerConfig _instance;
+
+        public static ServerConfig Instance => _instance;
+
+        public static void Load(string path)
+        {
+            var rawData = File.ReadAllText(path);
+            _instance = JsonSerializer.Deserialize<ServerConfig>(rawData);
+        }
     }
 }
