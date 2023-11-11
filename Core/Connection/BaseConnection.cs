@@ -37,7 +37,7 @@ namespace Core.Connection
             {
                 Console.WriteLine(e.Message);
 
-                _server.Disconnect(this);
+                _server.Disconnect(this, DisconnectReason.RemoteClosing);
             }
         }
     }

@@ -41,9 +41,9 @@ namespace Core.Server
             conn.ReceiveAsync();
         }
 
-        internal void Disconnect(BaseConnection conn)
+        internal void Disconnect(BaseConnection conn, DisconnectReason reason)
         {
-            OnDisconnected(conn);
+            OnDisconnected(conn, reason);
         }
 
         private void LoadConfig(string path)
@@ -54,6 +54,6 @@ namespace Core.Server
 
         protected abstract void OnNewConnection(BaseConnection conn);
 
-        protected abstract void OnDisconnected(BaseConnection conn);
+        protected abstract void OnDisconnected(BaseConnection conn, DisconnectReason reason);
     }
 }

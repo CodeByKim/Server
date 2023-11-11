@@ -18,7 +18,7 @@ internal class GameServer : BaseServer
         Console.WriteLine("OnNewConnection: " + conn.GetHashCode());
     }
 
-    protected override void OnDisconnected(BaseConnection conn)
+    protected override void OnDisconnected(BaseConnection conn, DisconnectReason reason)
     {
         Console.WriteLine("OnDisconnected: " + conn.GetHashCode());
     }
