@@ -10,6 +10,7 @@ namespace Core.Buffer
         public int UseSize { get; private set; }
         public int FreeSize => _buffer.Length - UseSize;
         public int BufferEnd => _buffer.Length;
+
         private byte[] _buffer;
         private int _bufferFront;
         private int _bufferRear;
