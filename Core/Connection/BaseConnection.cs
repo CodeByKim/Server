@@ -10,20 +10,35 @@ using Core.Util;
 
 namespace Core.Connection
 {
-    public class BaseConnection<TConnection>
-        where TConnection : BaseConnection<TConnection>, new()
+    public abstract class BaseConnection
     {
-        private Socket _socket;
-        private BaseServer<TConnection> _server;
+        protected Socket _socket;
+
+        private byte[] _receiveBuffer;
 
         public BaseConnection()
         {
         }
 
-        internal void Initialize(Socket socket, BaseServer<TConnection> server)
+        public void Send(string message)
+        {
+            var sendBytes = Encoding.UTF8.GetBytes("Hello World");
+
+            try
+            {
+                _socket.Send(sendBytes);
+            }
+            catch (Exception e)
+            {
+                OnDisconnected(this, DisconnectReason.RemoteClosing);
+            }
+        }
+
+        internal void Initialize(Socket socket)
         {
             _socket = socket;
-            _server = server;
+
+            _receiveBuffer = new byte[ServerConfig.Instance.ReceiveBufferSize];
         }
 
         internal void Release()
@@ -33,7 +48,7 @@ namespace Core.Connection
 
         internal async void ReceiveAsync()
         {
-            var tempBuffer = new ArraySegment<byte>(new byte[1024]);
+            var tempBuffer = new ArraySegment<byte>(_receiveBuffer);
 
             try
             {
@@ -42,13 +57,16 @@ namespace Core.Connection
 
                 Logger.Info($"From: {GetHashCode()}, message: {message}");
 
+                Array.Clear(_receiveBuffer);
                 ReceiveAsync();
 
             }
             catch (Exception e)
             {
-                _server.Disconnect(this as TConnection, DisconnectReason.RemoteClosing);
+                OnDisconnected(this, DisconnectReason.RemoteClosing);
             }
         }
+
+        protected abstract void OnDisconnected(BaseConnection conn, DisconnectReason reason);
     }
 }

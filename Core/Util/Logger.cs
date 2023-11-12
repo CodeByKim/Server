@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,29 +11,36 @@ namespace Core.Util
     {
         public static void Info(string message)
         {
-            var time = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-            var header = $"{time} [INFO]";
+            var header = $"{CurrentTimeToString()} [INFO]";
 
             Console.WriteLine($"{header} {message}");
         }
 
         public static void Warnning(string message)
         {
-            var time = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-            var header = $"{time} [WARN]";
+            var header = $"{CurrentTimeToString()} [WARN]";
 
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.WriteLine($"{header} {message}");
-            Console.ResetColor();
+            ColorWrite($"{header} {message}", ConsoleColor.Red);
         }
 
         public static void Error(string message)
         {
-            var time = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-            var header = $"{time} [ERROR]";
+            var header = $"{CurrentTimeToString()} [ERROR]";
 
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.WriteLine($"{header} {message}");
+            ColorWrite($"{header} {message}", ConsoleColor.Red);
+        }
+
+        private static string CurrentTimeToString()
+        {
+            return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
+        private static void ColorWrite(string message, ConsoleColor color)
+        {
+            Console.BackgroundColor = color;
+
+            Console.WriteLine(message);
+
             Console.ResetColor();
         }
     }

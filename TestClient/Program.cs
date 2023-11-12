@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Core.Connection;
+using Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -8,20 +10,22 @@ internal class Program
 {
     static async Task Main(string[] args)
     {
-        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        var ip = "127.0.0.1";
+        var portNumber = 8888;
 
-        var port = 8888;
-        IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+        var connector = new Connector();
+        connector.Initialize();
+        connector.OnDisconnectedHandler += (conn, reason) =>
+        {
+            Logger.Info($"Disconnected... Reason: {reason}");
+        };
 
-        await socket.ConnectAsync(endPoint);
-
-        Console.WriteLine("connect!");
-
-        byte[] message = Encoding.UTF8.GetBytes("Hello World");
+        await connector.ConnectAsync(ip, portNumber);
+        Logger.Info("Success Connect");
 
         while (true)
         {
-            socket.Send(message);
+            connector.Send("Hello World");
 
             Thread.Sleep(1000);
         }

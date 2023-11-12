@@ -7,7 +7,7 @@ using System.Data.Common;
 namespace Core.Util
 {
     public class ConnectionPooledObjectPolicy<TConnection> : IPooledObjectPolicy<TConnection>
-        where TConnection : BaseConnection<TConnection>, new()
+        where TConnection : ClientConnection<TConnection>, new()
     {
         public TConnection Create()
         {

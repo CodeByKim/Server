@@ -11,7 +11,7 @@ using Core.Util;
 namespace Core.Server
 {
     public abstract class BaseServer<TConnection>
-        where TConnection : BaseConnection<TConnection>, new()
+        where TConnection : ClientConnection<TConnection>, new()
     {
         private Acceptor _acceptor;
         private DefaultObjectPool<TConnection> _connectionPool;

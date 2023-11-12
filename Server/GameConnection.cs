@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Core.Connection;
 
-public class GameConnection : BaseConnection<GameConnection>
+public class GameConnection : ClientConnection<GameConnection>
 {
     public GameConnection()
     {

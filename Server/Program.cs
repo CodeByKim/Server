@@ -4,7 +4,9 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        GameServer server = new GameServer("config.json");
+        var configPath = "config.json";
+
+        var server = new GameServer(configPath);
         server.Initialize();
         server.Run();
 
