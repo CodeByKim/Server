@@ -14,7 +14,7 @@ namespace Core.Connection
     {
         private BaseServer<TConnection> _server;
 
-        public ClientConnection()
+        public ClientConnection() : base()
         {
         }
 

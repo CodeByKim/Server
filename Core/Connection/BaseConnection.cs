@@ -12,12 +12,15 @@ namespace Core.Connection
 {
     public abstract class BaseConnection
     {
+        public string ID { get; }
+
         protected Socket _socket;
 
         private byte[] _receiveBuffer;
 
         public BaseConnection()
         {
+            ID = Guid.NewGuid().ToString();
         }
 
         public void Send(string message)
@@ -43,7 +46,7 @@ namespace Core.Connection
 
         internal void Release()
         {
-            Logger.Info($"Release Connection: {GetHashCode()}");
+            Logger.Info($"Release Connection: {ID}");
         }
 
         internal async void ReceiveAsync()
@@ -55,7 +58,7 @@ namespace Core.Connection
                 var byteTransfer = await _socket.ReceiveAsync(tempBuffer);
                 var message = Encoding.UTF8.GetString(tempBuffer.Array, 0, byteTransfer);
 
-                Logger.Info($"From: {GetHashCode()}, message: {message}");
+                Logger.Info($"From: {ID}, message: {message}");
 
                 Array.Clear(_receiveBuffer);
                 ReceiveAsync();

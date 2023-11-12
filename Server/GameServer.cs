@@ -20,11 +20,11 @@ internal class GameServer : BaseServer<GameConnection>
 
     protected override void OnNewConnection(GameConnection conn)
     {
-        Logger.Info($"OnNewConnection: {conn.GetHashCode()}");
+        Logger.Info($"OnNewConnection: {conn.ID}");
     }
 
     protected override void OnDisconnected(GameConnection conn, DisconnectReason reason)
     {
-        Logger.Info($"OnDisconnected: {conn.GetHashCode()}, Reason: {reason}");
+        Logger.Info($"OnDisconnected: {conn.ID}, Reason: {reason}");
     }
 }

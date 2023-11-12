@@ -5,8 +5,7 @@ using Core.Connection;
 
 public class GameConnection : ClientConnection<GameConnection>
 {
-    public GameConnection()
+    public GameConnection() : base()
     {
-
     }
 }

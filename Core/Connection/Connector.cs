@@ -12,7 +12,7 @@ namespace Core.Connection
     {
         public Action<DisconnectReason> OnDisconnectedHandler { get; set; }
 
-        public Connector()
+        public Connector() : base()
         {
         }
 

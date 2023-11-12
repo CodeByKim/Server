@@ -12,7 +12,6 @@ namespace Core.Connection
 
         private Socket _socket;
         private IPEndPoint _endPoint;
-        private Action<Socket> _onNewClient;
 
         public Acceptor()
         {
