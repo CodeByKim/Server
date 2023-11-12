@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,8 +22,16 @@ namespace Core.Server
 
         public static void Load(string path)
         {
-            var rawData = File.ReadAllText(path);
-            _instance = JsonSerializer.Deserialize<ServerConfig>(rawData);
+            try
+            {
+                var rawData = File.ReadAllText(path);
+                _instance = JsonSerializer.Deserialize<ServerConfig>(rawData);
+            }
+            catch(Exception e)
+            {
+                Logger.Error($"Fail Loading Config... Path: {Path.GetFullPath(path)}");
+                Environment.Exit(0);
+            }
         }
     }
 }

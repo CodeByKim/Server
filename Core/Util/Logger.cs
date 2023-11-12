@@ -21,7 +21,9 @@ namespace Core.Util
             var time = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
             var header = $"{time} [WARN]";
 
+            Console.BackgroundColor = ConsoleColor.Red;
             Console.WriteLine($"{header} {message}");
+            Console.ResetColor();
         }
 
         public static void Error(string message)
@@ -29,7 +31,9 @@ namespace Core.Util
             var time = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
             var header = $"{time} [ERROR]";
 
+            Console.BackgroundColor = ConsoleColor.Red;
             Console.WriteLine($"{header} {message}");
+            Console.ResetColor();
         }
     }
 }
