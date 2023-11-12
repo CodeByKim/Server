@@ -4,12 +4,13 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 
 using Core.Server;
+using Core.Util;
 
 namespace Core.Connection
 {
     public class Connector : BaseConnection
     {
-        public Action<Connector, DisconnectReason> OnDisconnectedHandler { get; set; }
+        public Action<DisconnectReason> OnDisconnectedHandler { get; set; }
 
         public Connector()
         {
@@ -28,9 +29,12 @@ namespace Core.Connection
         protected override void OnDisconnected(BaseConnection conn, DisconnectReason reason)
         {
             if (OnDisconnectedHandler is null)
+            {
+                Logger.Warnning("OnDisconnectedHandler is null");
                 return;
+            }
 
-            OnDisconnectedHandler(this, reason);
+            OnDisconnectedHandler(reason);
         }
     }
 }

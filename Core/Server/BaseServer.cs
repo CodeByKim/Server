@@ -19,15 +19,15 @@ namespace Core.Server
         public BaseServer(string configPath)
         {
             ServerConfig.Load(configPath);
-
-            _acceptor = new Acceptor();
-            _connectionPool = new DefaultObjectPool<TConnection>(new ConnectionPooledObjectPolicy<TConnection>(),
-                                                                 ServerConfig.Instance.ConnectionPoolCount);
         }
 
         public virtual void Initialize()
         {
-            _acceptor.Initialize(AcceptNewClient);
+            _acceptor = new Acceptor();
+            _connectionPool = new DefaultObjectPool<TConnection>(new ConnectionPooledObjectPolicy<TConnection>(),
+                                                                 ServerConfig.Instance.ConnectionPoolCount);
+            _acceptor.Initialize();
+            _acceptor.OnNewClientHandler = AcceptNewClient;
         }
 
         public void Run()

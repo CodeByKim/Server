@@ -15,7 +15,7 @@ internal class Program
 
         var connector = new Connector();
         connector.Initialize();
-        connector.OnDisconnectedHandler += (conn, reason) =>
+        connector.OnDisconnectedHandler += (reason) =>
         {
             Logger.Info($"Disconnected... Reason: {reason}");
         };

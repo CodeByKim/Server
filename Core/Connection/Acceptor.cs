@@ -8,6 +8,8 @@ namespace Core.Connection
 {
     public class Acceptor
     {
+        public Action<Socket> OnNewClientHandler { get; set; }
+
         private Socket _socket;
         private IPEndPoint _endPoint;
         private Action<Socket> _onNewClient;
@@ -16,13 +18,11 @@ namespace Core.Connection
         {
         }
 
-        public void Initialize(Action<Socket> onNewClient)
+        public void Initialize()
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             _endPoint = new IPEndPoint(IPAddress.Any, ServerConfig.Instance.PortNumber);
-
-            _onNewClient = onNewClient;
         }
 
         public async void Run()
@@ -35,7 +35,7 @@ namespace Core.Connection
             {
                 var clientSocket = await _socket.AcceptAsync();
 
-                _onNewClient(clientSocket);
+                OnNewClientHandler(clientSocket);
             }
         }
     }

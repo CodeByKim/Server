@@ -19,7 +19,6 @@ namespace Core.Server
         public int ReceiveBufferSize { get; set; } = 1024 * 4;
 
         private static ServerConfig _instance;
-
         public static ServerConfig Instance => _instance;
 
         public static void Load(string path)
@@ -29,7 +28,7 @@ namespace Core.Server
                 var rawData = File.ReadAllText(path);
                 _instance = JsonSerializer.Deserialize<ServerConfig>(rawData);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error($"Fail Loading Config... Path: {Path.GetFullPath(path)}");
                 Environment.Exit(0);
