@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text.Json;
+
+using Microsoft.Extensions.ObjectPool;
 
 using Core.Connection;
-using Microsoft.Extensions.ObjectPool;
 using Core.Util;
 
 namespace Core.Server
@@ -18,16 +16,17 @@ namespace Core.Server
         private Acceptor _acceptor;
         private DefaultObjectPool<TConnection> _connectionPool;
 
-        public BaseServer()
-        {
-            _acceptor = new Acceptor();
-            _connectionPool = new DefaultObjectPool<TConnection>(new ConnectionPooledObjectPolicy<TConnection>(), 100);
-        }
-
-        public virtual void Initialize(string configPath)
+        public BaseServer(string configPath)
         {
             ServerConfig.Load(configPath);
 
+            _acceptor = new Acceptor();
+            _connectionPool = new DefaultObjectPool<TConnection>(new ConnectionPooledObjectPolicy<TConnection>(),
+                                                                 ServerConfig.Instance.ConnectionPoolCount);
+        }
+
+        public virtual void Initialize()
+        {
             _acceptor.Initialize(AcceptNewClient);
         }
 

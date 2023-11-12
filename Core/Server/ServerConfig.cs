@@ -13,6 +13,8 @@ namespace Core.Server
 
         public int Backlog { get; set; } = 10;
 
+        public int ConnectionPoolCount { get; set; } = 100;
+
         private static ServerConfig _instance;
 
         public static ServerConfig Instance => _instance;
