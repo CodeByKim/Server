@@ -4,7 +4,7 @@ using System.Data.Common;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-
+using Core.Buffer;
 using Core.Server;
 using Core.Util;
 
@@ -16,7 +16,7 @@ namespace Core.Connection
 
         protected Socket _socket;
 
-        private byte[] _receiveBuffer;
+        private RingBuffer _receiveBuffer;
 
         public BaseConnection()
         {
@@ -41,7 +41,7 @@ namespace Core.Connection
         {
             _socket = socket;
 
-            _receiveBuffer = new byte[ServerConfig.Instance.ReceiveBufferSize];
+            _receiveBuffer = new RingBuffer(ServerConfig.Instance.ReceiveBufferSize);
         }
 
         internal void Release()
@@ -51,16 +51,14 @@ namespace Core.Connection
 
         internal async void ReceiveAsync()
         {
-            var tempBuffer = new ArraySegment<byte>(_receiveBuffer);
+            var writableSegment = _receiveBuffer.GetWritable();
 
             try
             {
-                var byteTransfer = await _socket.ReceiveAsync(tempBuffer);
-                var message = Encoding.UTF8.GetString(tempBuffer.Array, 0, byteTransfer);
+                var byteTransfer = await _socket.ReceiveAsync(writableSegment);
 
-                Logger.Info($"From: {ID}, message: {message}");
+                ProcessReceive(byteTransfer);
 
-                Array.Clear(_receiveBuffer);
                 ReceiveAsync();
 
             }
@@ -68,6 +66,22 @@ namespace Core.Connection
             {
                 OnDisconnected(this, DisconnectReason.RemoteClosing);
             }
+        }
+
+        internal void ProcessReceive(int byteTransfer)
+        {
+            _receiveBuffer.FinishWrite(byteTransfer);
+
+            var packetSize = 11; // 임시로 hello world의 사이즈를 박아서 테스트
+            if (_receiveBuffer.UseSize < packetSize)
+                return;
+
+            var data = _receiveBuffer.Peek(packetSize);
+            var message = Encoding.UTF8.GetString(data, 0, packetSize);
+            Logger.Info($"From: {ID}, message: {message}");
+
+            // 나중엔 실제로 처리된 바이트를 읽음 처리해야 한다.
+            _receiveBuffer.FinishRead(packetSize);
         }
 
         protected abstract void OnDisconnected(BaseConnection conn, DisconnectReason reason);

@@ -16,7 +16,9 @@ namespace Core.Server
 
         public int ConnectionPoolCount { get; set; } = 100;
 
-        public int ReceiveBufferSize { get; set; } = 1024 * 4;
+        //public int ReceiveBufferSize { get; set; } = 1024 * 4;
+
+        public int ReceiveBufferSize { get; set; } = 15;
 
         private static ServerConfig _instance;
         public static ServerConfig Instance => _instance;
