@@ -51,11 +51,11 @@ namespace Core.Connection
 
         internal async void ReceiveAsync()
         {
-            var writableSegment = _receiveBuffer.GetWritable();
+            var writableSegments = _receiveBuffer.GetWritable();
 
             try
             {
-                var byteTransfer = await _socket.ReceiveAsync(writableSegment);
+                var byteTransfer = await _socket.ReceiveAsync(writableSegments);
 
                 ProcessReceive(byteTransfer);
 
