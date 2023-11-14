@@ -69,26 +69,27 @@ namespace Core.Buffer
             UseSize -= size;
         }
 
-        public byte[] Peek(int size)
+        public ArraySegment<byte> Peek(int size)
         {
             if (size > UseSize)
-                return null;
+                return default;
 
-            var data = new byte[size];
+            var segment = new ArraySegment<byte>(_buffer);
             if (size <= BufferEnd - _bufferFront)
             {
-                Array.Copy(_buffer, _bufferFront, data, 0, size);
+                return new ArraySegment<byte>(_buffer, _bufferFront, size);
             }
             else
             {
+                var tempData = new byte[size];
                 int frontDataSize = BufferEnd - _bufferFront;
-                Array.Copy(_buffer, _bufferFront, data, 0, frontDataSize);
+                Array.Copy(_buffer, _bufferFront, tempData, 0, frontDataSize);
 
                 int remainDataSize = size - frontDataSize;
-                Array.Copy(_buffer, 0, data, frontDataSize, remainDataSize);
-            }
+                Array.Copy(_buffer, 0, tempData, frontDataSize, remainDataSize);
 
-            return data;
+                return new ArraySegment<byte>(tempData, 0, size);
+            }
         }
 
         //public bool Enqueue(byte[] srcData)

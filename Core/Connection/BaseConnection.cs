@@ -77,7 +77,13 @@ namespace Core.Connection
                 return;
 
             var data = _receiveBuffer.Peek(packetSize);
-            var message = Encoding.UTF8.GetString(data, 0, packetSize);
+            if (data.Array is null)
+            {
+                OnDisconnected(this, DisconnectReason.InvalidConnection);
+                return;
+            }
+
+            var message = Encoding.UTF8.GetString(data.Array, data.Offset, packetSize);
             Logger.Info($"From: {ID}, message: {message}");
 
             // 나중엔 실제로 처리된 바이트를 읽음 처리해야 한다.

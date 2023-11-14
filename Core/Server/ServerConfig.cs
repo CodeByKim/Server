@@ -32,7 +32,7 @@ namespace Core.Server
             }
             catch (Exception e)
             {
-                Logger.Error($"Fail Loading Config... Path: {Path.GetFullPath(path)}");
+                Logger.Error($"Fail Loading Config... Message: {e.Message}, Path: {Path.GetFullPath(path)}");
                 Environment.Exit(0);
             }
         }
