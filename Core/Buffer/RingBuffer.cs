@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Util;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,6 +18,12 @@ namespace Core.Buffer
 
         public RingBuffer(int bufferSize)
         {
+            if (bufferSize == 0)
+            {
+                Logger.Warnning("RingBuffer Size Is Zero");
+                return;
+            }
+
             UseSize = 0;
 
             _buffer = new byte[bufferSize];
@@ -24,20 +31,20 @@ namespace Core.Buffer
             _bufferRear = 0;
         }
 
-        public ArraySegment<byte> GetWritable()
+        public List<ArraySegment<byte>> GetWritable()
         {
-            return new ArraySegment<byte>(_buffer, _bufferRear, GetDirectWritableSize());
+            if (FreeSize == 0)
+                return null;
+
+            var segmentList = new List<ArraySegment<byte>>();
+            segmentList.Add(new ArraySegment<byte>(_buffer, _bufferRear, GetDirectWritableSize()));
+
+            if (_bufferRear < _bufferFront)
+                return segmentList;
+
+            segmentList.Add(new ArraySegment<byte>(_buffer, 0, _bufferFront));
+            return segmentList;
         }
-
-        //public List<ArraySegment<byte>> GetWritable2()
-        //{
-        //    var list = new List<ArraySegment<byte>>();
-
-        //    list.Add(new ArraySegment<byte>(_buffer, _bufferRear, GetDirectWritableSize()));
-        //    list.Add(null);
-
-        //    return list;
-        //}
 
         public void FinishWrite(int size)
         {
@@ -82,10 +89,10 @@ namespace Core.Buffer
             else
             {
                 var tempData = new byte[size];
-                int frontDataSize = BufferEnd - _bufferFront;
+                var frontDataSize = BufferEnd - _bufferFront;
                 Array.Copy(_buffer, _bufferFront, tempData, 0, frontDataSize);
 
-                int remainDataSize = size - frontDataSize;
+                var remainDataSize = size - frontDataSize;
                 Array.Copy(_buffer, 0, tempData, frontDataSize, remainDataSize);
 
                 return new ArraySegment<byte>(tempData, 0, size);
