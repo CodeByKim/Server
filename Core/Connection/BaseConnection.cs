@@ -72,22 +72,28 @@ namespace Core.Connection
         {
             _receiveBuffer.FinishWrite(byteTransfer);
 
-            var packetSize = 11; // 임시로 hello world의 사이즈를 박아서 테스트
-            if (_receiveBuffer.UseSize < packetSize)
+            if (byteTransfer == 0 || _receiveBuffer.UseSize == 0)
                 return;
 
-            var data = _receiveBuffer.Peek(packetSize);
-            if (data.Array is null)
+            while (_receiveBuffer.UseSize > 0)
             {
-                ForceDisconnect(DisconnectReason.InvalidConnection);
-                return;
+                var packetSize = 11; // 임시로 hello world의 사이즈를 박아서 테스트
+                if (_receiveBuffer.UseSize < packetSize)
+                    return;
+
+                var data = _receiveBuffer.Peek(packetSize);
+                if (data.Array is null)
+                {
+                    ForceDisconnect(DisconnectReason.InvalidConnection);
+                    return;
+                }
+
+                var message = Encoding.UTF8.GetString(data.Array, data.Offset, packetSize);
+                Logger.Info($"From: {ID}, message: {message}");
+
+                // 나중엔 실제로 처리된 바이트를 읽음 처리해야 한다.
+                _receiveBuffer.FinishRead(packetSize);
             }
-
-            var message = Encoding.UTF8.GetString(data.Array, data.Offset, packetSize);
-            Logger.Info($"From: {ID}, message: {message}");
-
-            // 나중엔 실제로 처리된 바이트를 읽음 처리해야 한다.
-            _receiveBuffer.FinishRead(packetSize);
         }
 
         internal void ForceDisconnect(DisconnectReason reason)
