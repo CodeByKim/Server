@@ -150,8 +150,6 @@ namespace Core.Buffer
         //    return data;
         //}
 
-
-
         public bool IsEmpty()
         {
             return UseSize == 0;

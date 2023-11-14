@@ -33,7 +33,7 @@ namespace Core.Connection
             }
             catch (Exception e)
             {
-                OnDisconnected(this, DisconnectReason.RemoteClosing);
+                ForceDisconnect(DisconnectReason.RemoteClosing);
             }
         }
 
@@ -64,7 +64,7 @@ namespace Core.Connection
             }
             catch (Exception e)
             {
-                OnDisconnected(this, DisconnectReason.RemoteClosing);
+                ForceDisconnect(DisconnectReason.RemoteClosing);
             }
         }
 
@@ -79,7 +79,7 @@ namespace Core.Connection
             var data = _receiveBuffer.Peek(packetSize);
             if (data.Array is null)
             {
-                OnDisconnected(this, DisconnectReason.InvalidConnection);
+                ForceDisconnect(DisconnectReason.InvalidConnection);
                 return;
             }
 
@@ -88,6 +88,16 @@ namespace Core.Connection
 
             // 나중엔 실제로 처리된 바이트를 읽음 처리해야 한다.
             _receiveBuffer.FinishRead(packetSize);
+        }
+
+        internal void ForceDisconnect(DisconnectReason reason)
+        {
+            if (_socket is null)
+                Logger.Warnning("socket is null...");
+            else
+                _socket.Close();
+
+            OnDisconnected(this, reason);
         }
 
         protected abstract void OnDisconnected(BaseConnection conn, DisconnectReason reason);
