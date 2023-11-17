@@ -1,10 +1,12 @@
-﻿using Core.Connection;
-using Core.Util;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+
+using Core.Connection;
+using Core.Util;
+using Protocol;
 
 internal class Program
 {
@@ -25,8 +27,11 @@ internal class Program
 
         while (true)
         {
-            connector.Send("Hello World");
+            //PktEcho pkt = new PktEcho();
+            //pkt.Message = "Hello World";
+            //connector.Send(pkt);
 
+            connector.Send("Hello World");
             Thread.Sleep(1000);
         }
 

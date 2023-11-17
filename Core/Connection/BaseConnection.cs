@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+
+using Google.Protobuf;
+
 using Core.Buffer;
 using Core.Server;
 using Core.Util;
@@ -35,6 +36,11 @@ namespace Core.Connection
             {
                 ForceDisconnect(DisconnectReason.RemoteClosing);
             }
+        }
+
+        public void Send(IMessage packet)
+        {
+            
         }
 
         internal void Initialize(Socket socket)
@@ -77,23 +83,29 @@ namespace Core.Connection
 
             while (_receiveBuffer.UseSize > 0)
             {
-                var packetSize = 11; // 임시로 hello world의 사이즈를 박아서 테스트
-                if (_receiveBuffer.UseSize < packetSize)
+                var payload = 11; // 임시로 hello world의 사이즈를 박아서 테스트
+                if (_receiveBuffer.UseSize < payload)
                     return;
 
-                var data = _receiveBuffer.Peek(packetSize);
+                var data = _receiveBuffer.Peek(payload);
                 if (data.Array is null)
                 {
                     ForceDisconnect(DisconnectReason.InvalidConnection);
                     return;
                 }
 
-                var message = Encoding.UTF8.GetString(data.Array, data.Offset, packetSize);
-                Logger.Info($"From: {ID}, message: {message}");
+                ParsePacket(data, payload);
 
                 // 나중엔 실제로 처리된 바이트를 읽음 처리해야 한다.
-                _receiveBuffer.FinishRead(packetSize);
+                _receiveBuffer.FinishRead(payload);
             }
+        }
+
+        internal void ParsePacket(ArraySegment<Byte> data, int payload)
+        {
+            var message = Encoding.UTF8.GetString(data.Array, data.Offset, payload);
+
+            Logger.Info($"From: {ID}, message: {message}");
         }
 
         internal void ForceDisconnect(DisconnectReason reason)

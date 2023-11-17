@@ -35,3 +35,7 @@ message AddressBook {
 message PktEcho {
   string message = 1;
 }
+
+message PktEchoResult {
+  string message = 1;
+}

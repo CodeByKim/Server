@@ -5,7 +5,7 @@ using Core.Util;
 
 namespace Core.Buffer
 {
-    public class RingBuffer
+    internal class RingBuffer
     {
         public int UseSize { get; private set; }
         public int FreeSize => _buffer.Length - UseSize;

@@ -6,7 +6,7 @@ using Core.Util;
 
 namespace Core.Connection
 {
-    public class Acceptor
+    internal class Acceptor
     {
         public Action<Socket> OnNewClientHandler { get; set; }
 
