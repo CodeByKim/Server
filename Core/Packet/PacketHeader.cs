@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Google.Protobuf;
 
 namespace Core.Packet
 {
@@ -10,11 +8,13 @@ namespace Core.Packet
     {
         public static readonly short HeaderSize = 4;
 
-        public short Payload { get; set; }
-        public short PacketId { get; set; }
+        public short PacketId { get; private set; }
+        public short Payload { get; private set; }
 
-        public PacketHeader()
+        public PacketHeader(IMessage packet)
         {
+            PacketId = 0;
+            Payload = (short)packet.CalculateSize();
         }
     }
 }

@@ -8,6 +8,7 @@ using Google.Protobuf;
 using Core.Buffer;
 using Core.Server;
 using Core.Util;
+using Core.Packet;
 
 namespace Core.Connection
 {
@@ -18,10 +19,15 @@ namespace Core.Connection
         protected Socket _socket;
 
         private RingBuffer _receiveBuffer;
+        private List<ArraySegment<byte>> _reserveSendList;
+
+        private object _sendLock;
 
         public BaseConnection()
         {
             ID = Guid.NewGuid().ToString();
+
+            _sendLock = new object();
         }
 
         public void Send(string message)
@@ -40,7 +46,13 @@ namespace Core.Connection
 
         public void Send(IMessage packet)
         {
-            
+            var header = new PacketHeader(packet);
+            var buffer = PacketUtil.CreateBuffer(header, packet);
+
+            lock (_sendLock)
+            {
+                _reserveSendList.Add(buffer);
+            }
         }
 
         internal void Initialize(Socket socket)
