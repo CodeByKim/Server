@@ -6,6 +6,8 @@ using System.Text;
 
 using Core.Connection;
 using Core.Util;
+
+using Google.Protobuf;
 using Protocol;
 
 internal class Program
@@ -17,9 +19,18 @@ internal class Program
 
         var connector = new Connector();
         connector.Initialize();
+
         connector.OnDisconnectedHandler += (reason) =>
         {
             Logger.Info($"Disconnected... Reason: {reason}");
+        };
+
+        connector.OnGetPacketIdHandler += (packet) =>
+        {
+            var packetName = packet.Descriptor.Name;
+            var packetId = Enum.Parse<PacketId>(packetName);
+
+            return (short)packetId;
         };
 
         await connector.ConnectAsync(ip, portNumber);

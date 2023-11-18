@@ -15,6 +15,7 @@ namespace Core.Connection
     public abstract class BaseConnection
     {
         public string ID { get; }
+        public Func<IMessage, short> OnGetPacketIdHandler { get; set; }
 
         protected Socket _socket;
 
@@ -46,7 +47,9 @@ namespace Core.Connection
 
         public void Send(IMessage packet)
         {
-            var header = new PacketHeader(packet);
+            var packetId = OnGetPacketIdHandler(packet);
+
+            var header = new PacketHeader(packet, packetId);
             var buffer = PacketUtil.CreateBuffer(header, packet);
 
             lock (_sendLock)
