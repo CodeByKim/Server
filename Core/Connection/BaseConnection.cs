@@ -29,6 +29,7 @@ namespace Core.Connection
             ID = Guid.NewGuid().ToString();
 
             _sendLock = new object();
+            _reserveSendList = new List<ArraySegment<byte>>();
         }
 
         public void Send(string message)

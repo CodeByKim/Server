@@ -26,7 +26,7 @@ namespace Core.Packet
             var payload = BitConverter.GetBytes(header.Payload);
 
             Array.Copy(packetId, 0, buffer, 0, sizeof(short));
-            Array.Copy(payload, sizeof(short), buffer, sizeof(short), sizeof(short));
+            Array.Copy(payload, 0, buffer, sizeof(short), sizeof(short));
         }
 
         private static void PacketToBuffer(IMessage packet, short payload, byte[] buffer)

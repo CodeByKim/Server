@@ -38,11 +38,11 @@ internal class Program
 
         while (true)
         {
-            //PktEcho pkt = new PktEcho();
-            //pkt.Message = "Hello World";
-            //connector.Send(pkt);
+            PktEcho pkt = new PktEcho();
+            pkt.Message = "Hello World";
+            connector.Send(pkt);
 
-            connector.Send("Hello World");
+            //connector.Send("Hello World");
             Thread.Sleep(1000);
         }
 
