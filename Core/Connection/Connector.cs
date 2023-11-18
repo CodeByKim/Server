@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-
+using Core.Packet;
 using Core.Server;
 using Core.Util;
 
@@ -35,6 +35,10 @@ namespace Core.Connection
             }
 
             OnDisconnectedHandler(reason);
+        }
+
+        protected override void OnParsePacket(PacketHeader header, ArraySegment<byte> data)
+        {
         }
     }
 }

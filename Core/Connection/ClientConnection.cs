@@ -9,7 +9,7 @@ using Core.Util;
 
 namespace Core.Connection
 {
-    public class ClientConnection<TConnection> : BaseConnection
+    public abstract class ClientConnection<TConnection> : BaseConnection
         where TConnection : ClientConnection<TConnection>, new()
     {
         private BaseServer<TConnection> _server;

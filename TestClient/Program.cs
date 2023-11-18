@@ -39,7 +39,7 @@ internal class Program
         while (true)
         {
             PktEcho pkt = new PktEcho();
-            pkt.Message = "Hello World";
+            pkt.Message = "Echo Test";
             connector.Send(pkt);
 
             //connector.Send("Hello World");

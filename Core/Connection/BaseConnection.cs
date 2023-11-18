@@ -9,6 +9,7 @@ using Core.Buffer;
 using Core.Server;
 using Core.Util;
 using Core.Packet;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Core.Connection
 {
@@ -21,6 +22,7 @@ namespace Core.Connection
 
         private RingBuffer _receiveBuffer;
         private List<ArraySegment<byte>> _reserveSendList;
+        private bool _isSending;
 
         private object _sendLock;
 
@@ -30,20 +32,7 @@ namespace Core.Connection
 
             _sendLock = new object();
             _reserveSendList = new List<ArraySegment<byte>>();
-        }
-
-        public void Send(string message)
-        {
-            var sendBytes = Encoding.UTF8.GetBytes("Hello World");
-
-            try
-            {
-                _socket.Send(sendBytes);
-            }
-            catch (Exception e)
-            {
-                ForceDisconnect(DisconnectReason.RemoteClosing);
-            }
+            _isSending = false;
         }
 
         public void Send(IMessage packet)
@@ -56,7 +45,12 @@ namespace Core.Connection
             lock (_sendLock)
             {
                 _reserveSendList.Add(buffer);
+
+                if (_isSending)
+                    return;
             }
+
+            TrySend();
         }
 
         internal void Initialize(Socket socket)
@@ -99,29 +93,28 @@ namespace Core.Connection
 
             while (_receiveBuffer.UseSize > 0)
             {
-                var payload = 11; // 임시로 hello world의 사이즈를 박아서 테스트
-                if (_receiveBuffer.UseSize < payload)
+                PacketHeader header;
+                if (!TryGetHeader(out header))
                     return;
 
-                var data = _receiveBuffer.Peek(payload);
-                if (data.Array is null)
+                if (_receiveBuffer.UseSize < header.Payload)
+                    return;
+
+                var packetSize = PacketHeader.HeaderSize + header.Payload;
+                var packetBuffer = _receiveBuffer.Peek(packetSize);
+                if (packetBuffer.Array is null)
                 {
                     ForceDisconnect(DisconnectReason.InvalidConnection);
                     return;
                 }
 
-                ParsePacket(data, payload);
+                var payload = new ArraySegment<byte>(packetBuffer.Array,
+                                                     packetBuffer.Offset + PacketHeader.HeaderSize,
+                                                     header.Payload);
+                OnParsePacket(header, payload);
 
-                // 나중엔 실제로 처리된 바이트를 읽음 처리해야 한다.
-                _receiveBuffer.FinishRead(payload);
+                _receiveBuffer.FinishRead(packetSize);
             }
-        }
-
-        internal void ParsePacket(ArraySegment<Byte> data, int payload)
-        {
-            var message = Encoding.UTF8.GetString(data.Array, data.Offset, payload);
-
-            Logger.Info($"From: {ID}, message: {message}");
         }
 
         internal void ForceDisconnect(DisconnectReason reason)
@@ -133,6 +126,41 @@ namespace Core.Connection
 
             OnDisconnected(this, reason);
         }
+
+        private void TrySend()
+        {
+            lock (_sendLock)
+            {
+                var sendList = new List<ArraySegment<byte>>();
+
+                foreach (var item in _reserveSendList)
+                    sendList.Add(item);
+
+                _reserveSendList.Clear();
+
+                SendAsync(sendList);
+            }
+        }
+
+        private async void SendAsync(List<ArraySegment<byte>> sendList)
+        {
+            await _socket.SendAsync(sendList);
+
+            //완료 처리
+        }
+
+        private bool TryGetHeader(out PacketHeader header)
+        {
+            header = new PacketHeader();
+
+            if (_receiveBuffer.UseSize < PacketHeader.HeaderSize)
+                return false;
+
+            header.CopyTo(_receiveBuffer);
+            return true;
+        }
+
+        protected abstract void OnParsePacket(PacketHeader header, ArraySegment<Byte> data);
 
         protected abstract void OnDisconnected(BaseConnection conn, DisconnectReason reason);
     }

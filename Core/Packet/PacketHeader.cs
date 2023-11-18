@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Buffer;
 using Google.Protobuf;
 
 namespace Core.Packet
 {
-    internal struct PacketHeader
+    public struct PacketHeader
     {
         public static readonly short HeaderSize = 4;
 
@@ -15,6 +16,14 @@ namespace Core.Packet
         {
             PacketId = packetId;
             Payload = (short)packet.CalculateSize();
+        }
+
+        internal void CopyTo(RingBuffer buffer)
+        {
+            var data = buffer.Peek(HeaderSize);
+
+            PacketId = BitConverter.ToInt16(data.Array, data.Offset);
+            Payload = BitConverter.ToInt16(data.Array, data.Offset + sizeof(short));
         }
     }
 }
