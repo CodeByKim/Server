@@ -147,8 +147,14 @@ namespace Core.Connection
                 ForceDisconnect(DisconnectReason.RemoteClosing);
             }
 
-            //완료 처리
-            _isSending = false;
+            lock (_sendLock)
+            {
+                //완료 처리
+                _isSending = false;
+
+                if (_reservedSendList.Count > 0)
+                    TrySend();
+            }
         }
 
         private bool TryGetHeader(out PacketHeader header)
