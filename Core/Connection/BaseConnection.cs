@@ -23,16 +23,14 @@ namespace Core.Connection
         private bool _isSending;
         private object _sendLock;
 
-        private Queue<ArraySegment<byte>> _reservedSendQueue;
-        private List<ArraySegment<byte>> _sendPacketList;
+        private List<ArraySegment<byte>> _reservedSendList;
 
         public BaseConnection()
         {
             ID = Guid.NewGuid().ToString();
 
             _sendLock = new object();
-            _reservedSendQueue = new Queue<ArraySegment<byte>>();
-            _sendPacketList = new List<ArraySegment<byte>>();
+            _reservedSendList = new List<ArraySegment<byte>>();
 
             _isSending = false;
         }
@@ -44,7 +42,7 @@ namespace Core.Connection
 
             lock (_sendLock)
             {
-                _reservedSendQueue.Enqueue(buffer);
+                _reservedSendList.Add(buffer);
 
                 if (_isSending)
                     return;
@@ -129,23 +127,28 @@ namespace Core.Connection
 
         private void TrySend()
         {
-            _isSending = true;
+            List<ArraySegment<byte>> sendList;
+            sendList = _reservedSendList;
 
-            foreach (var item in _reservedSendQueue)
-                _sendPacketList.Add(item);
+            _reservedSendList = new List<ArraySegment<byte>>();
 
-            _reservedSendQueue.Clear();
-
-            SendAsync(_sendPacketList);
+            SendAsync(sendList);
         }
 
         private async void SendAsync(List<ArraySegment<byte>> sendList)
         {
-            await _socket.SendAsync(sendList);
+            try
+            {
+                _isSending = true;
+                await _socket.SendAsync(sendList);
+            }
+            catch (Exception e)
+            {
+                ForceDisconnect(DisconnectReason.RemoteClosing);
+            }
 
             //완료 처리
             _isSending = false;
-            _sendPacketList.Clear();
         }
 
         private bool TryGetHeader(out PacketHeader header)
