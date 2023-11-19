@@ -25,14 +25,6 @@ internal class Program
             Logger.Info($"Disconnected... Reason: {reason}");
         };
 
-        connector.OnGetPacketIdHandler += (packet) =>
-        {
-            var packetName = packet.Descriptor.Name;
-            var packetId = Enum.Parse<PacketId>(packetName);
-
-            return (short)packetId;
-        };
-
         await connector.ConnectAsync(ip, portNumber);
         Logger.Info("Success Connect");
 
@@ -40,7 +32,7 @@ internal class Program
         {
             PktEcho pkt = new PktEcho();
             pkt.Message = "Echo Test";
-            connector.Send(pkt);
+            connector.Send((short)PacketId.PktEcho, pkt);
 
             //connector.Send("Hello World");
             Thread.Sleep(1000);

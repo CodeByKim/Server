@@ -12,13 +12,6 @@ public class GameConnection : ClientConnection<GameConnection>
 {
     public GameConnection() : base()
     {
-        OnGetPacketIdHandler += (packet) =>
-        {
-            var packetName = packet.Descriptor.Name;
-            var packetId = Enum.Parse<PacketId>(packetName);
-
-            return (short)packetId;
-        };
     }
 
     protected override void OnParsePacket(PacketHeader header, ArraySegment<Byte> data)

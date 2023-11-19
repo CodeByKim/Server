@@ -16,14 +16,12 @@ namespace Core.Connection
     public abstract class BaseConnection
     {
         public string ID { get; }
-        public Func<IMessage, short> OnGetPacketIdHandler { get; set; }
 
         protected Socket _socket;
 
         private RingBuffer _receiveBuffer;
         private List<ArraySegment<byte>> _reserveSendList;
         private bool _isSending;
-
         private object _sendLock;
 
         public BaseConnection()
@@ -35,10 +33,8 @@ namespace Core.Connection
             _isSending = false;
         }
 
-        public void Send(IMessage packet)
+        public void Send(short packetId, IMessage packet)
         {
-            var packetId = OnGetPacketIdHandler(packet);
-
             var header = new PacketHeader(packet, packetId);
             var buffer = PacketUtil.CreateBuffer(header, packet);
 
