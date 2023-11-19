@@ -34,7 +34,6 @@ internal class Program
             pkt.Message = "Echo Test";
             connector.Send((short)PacketId.PktEcho, pkt);
 
-            //connector.Send("Hello World");
             Thread.Sleep(1000);
         }
 

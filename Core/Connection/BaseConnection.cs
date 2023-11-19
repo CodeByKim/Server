@@ -20,16 +20,20 @@ namespace Core.Connection
         protected Socket _socket;
 
         private RingBuffer _receiveBuffer;
-        private List<ArraySegment<byte>> _reserveSendList;
         private bool _isSending;
         private object _sendLock;
+
+        private Queue<ArraySegment<byte>> _reservedSendQueue;
+        private List<ArraySegment<byte>> _sendPacketList;
 
         public BaseConnection()
         {
             ID = Guid.NewGuid().ToString();
 
             _sendLock = new object();
-            _reserveSendList = new List<ArraySegment<byte>>();
+            _reservedSendQueue = new Queue<ArraySegment<byte>>();
+            _sendPacketList = new List<ArraySegment<byte>>();
+
             _isSending = false;
         }
 
@@ -40,13 +44,13 @@ namespace Core.Connection
 
             lock (_sendLock)
             {
-                _reserveSendList.Add(buffer);
+                _reservedSendQueue.Enqueue(buffer);
 
                 if (_isSending)
                     return;
-            }
 
-            TrySend();
+                TrySend();
+            }
         }
 
         internal void Initialize(Socket socket)
@@ -125,17 +129,14 @@ namespace Core.Connection
 
         private void TrySend()
         {
-            lock (_sendLock)
-            {
-                var sendList = new List<ArraySegment<byte>>();
+            _isSending = true;
 
-                foreach (var item in _reserveSendList)
-                    sendList.Add(item);
+            foreach (var item in _reservedSendQueue)
+                _sendPacketList.Add(item);
 
-                _reserveSendList.Clear();
+            _reservedSendQueue.Clear();
 
-                SendAsync(sendList);
-            }
+            SendAsync(_sendPacketList);
         }
 
         private async void SendAsync(List<ArraySegment<byte>> sendList)
@@ -143,6 +144,8 @@ namespace Core.Connection
             await _socket.SendAsync(sendList);
 
             //완료 처리
+            _isSending = false;
+            _sendPacketList.Clear();
         }
 
         private bool TryGetHeader(out PacketHeader header)
