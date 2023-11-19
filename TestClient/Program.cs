@@ -17,24 +17,20 @@ internal class Program
         var ip = "127.0.0.1";
         var portNumber = 8888;
 
-        var connector = new Connector();
-        connector.Initialize();
-
-        connector.OnDisconnectedHandler += (reason) =>
-        {
-            Logger.Info($"Disconnected... Reason: {reason}");
-        };
+        var connector = new DummyConnector();
 
         await connector.ConnectAsync(ip, portNumber);
         Logger.Info("Success Connect");
+
 
         while (true)
         {
             PktEcho pkt = new PktEcho();
             pkt.Message = "Echo Test";
+
             connector.Send((short)PacketId.PktEcho, pkt);
 
-            Thread.Sleep(1000);
+            Thread.Sleep(10);
         }
 
         Console.ReadLine();

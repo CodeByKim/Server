@@ -6,6 +6,7 @@ using System.Net.Sockets;
 
 using Core.Server;
 using Core.Util;
+using Core.Packet;
 
 namespace Core.Connection
 {
@@ -23,6 +24,11 @@ namespace Core.Connection
             Initialize(socket);
 
             _server = server;
+        }
+
+        protected override void OnDispatchPacket(PacketHeader header, ArraySegment<byte> data)
+        {
+            _server.ParsePacket(this as TConnection, header, data);
         }
 
         protected override void OnDisconnected(BaseConnection conn, DisconnectReason reason)

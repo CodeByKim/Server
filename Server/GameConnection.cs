@@ -14,12 +14,12 @@ public class GameConnection : ClientConnection<GameConnection>
     {
     }
 
-    protected override void OnParsePacket(PacketHeader header, ArraySegment<Byte> data)
-    {
-        //무조건 PktEcho라고 가정
-        PktEcho pkt = new PktEcho();
-        pkt.MergeFrom(data.Array, data.Offset, header.Payload);
+    //protected override void OnDispatchPacket(PacketHeader header, ArraySegment<Byte> data)
+    //{
+    //    //무조건 PktEcho라고 가정
+    //    PktEcho pkt = new PktEcho();
+    //    pkt.MergeFrom(data.Array, data.Offset, header.Payload);
 
-        Logger.Info($"From: {ID}, message: {pkt.Message}");
-    }
+    //    Logger.Info($"From: {ID}, message: {pkt.Message}");
+    //}
 }

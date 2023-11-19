@@ -8,37 +8,30 @@ using Core.Util;
 
 namespace Core.Connection
 {
-    public class Connector : BaseConnection
+    public abstract class Connector<TConnection> : BaseConnection
+        where TConnection : BaseConnection
     {
-        public Action<DisconnectReason> OnDisconnectedHandler { get; set; }
+        private AbstractPacketResolver<TConnection> _packetResolver;
 
         public Connector() : base()
         {
-        }
-
-        public void Initialize()
-        {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            _packetResolver = OnRegisterPacketResolver();
         }
 
         public async Task ConnectAsync(string ip, int portNumber)
         {
             await _socket.ConnectAsync(ip, portNumber);
+
+            ReceiveAsync();
         }
 
-        protected override void OnDisconnected(BaseConnection conn, DisconnectReason reason)
+        protected override void OnDispatchPacket(PacketHeader header, ArraySegment<byte> payload)
         {
-            if (OnDisconnectedHandler is null)
-            {
-                Logger.Warnning("OnDisconnectedHandler is null");
-                return;
-            }
-
-            OnDisconnectedHandler(reason);
+            _packetResolver.ExecutePacketHandler(this as TConnection, header.PacketId, payload);
         }
 
-        protected override void OnParsePacket(PacketHeader header, ArraySegment<byte> data)
-        {
-        }
+        protected abstract AbstractPacketResolver<TConnection> OnRegisterPacketResolver();
     }
 }

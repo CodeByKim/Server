@@ -9,7 +9,6 @@ using Core.Buffer;
 using Core.Server;
 using Core.Util;
 using Core.Packet;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Core.Connection
 {
@@ -33,6 +32,9 @@ namespace Core.Connection
             _reservedSendList = new List<ArraySegment<byte>>();
 
             _isSending = false;
+
+            //_receiveBuffer = new RingBuffer(ServerConfig.Instance.ReceiveBufferSize);
+            _receiveBuffer = new RingBuffer(15);
         }
 
         public void Send(short packetId, IMessage packet)
@@ -54,8 +56,6 @@ namespace Core.Connection
         internal void Initialize(Socket socket)
         {
             _socket = socket;
-
-            _receiveBuffer = new RingBuffer(ServerConfig.Instance.ReceiveBufferSize);
         }
 
         internal void Release()
@@ -109,7 +109,7 @@ namespace Core.Connection
                 var payload = new ArraySegment<byte>(packetBuffer.Array,
                                                      packetBuffer.Offset + PacketHeader.HeaderSize,
                                                      header.Payload);
-                OnParsePacket(header, payload);
+                OnDispatchPacket(header, payload);
 
                 _receiveBuffer.FinishRead(packetSize);
             }
@@ -168,7 +168,7 @@ namespace Core.Connection
             return true;
         }
 
-        protected abstract void OnParsePacket(PacketHeader header, ArraySegment<Byte> data);
+        protected abstract void OnDispatchPacket(PacketHeader header, ArraySegment<Byte> data);
 
         protected abstract void OnDisconnected(BaseConnection conn, DisconnectReason reason);
     }

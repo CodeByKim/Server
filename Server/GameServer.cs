@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Core.Connection;
+using Core.Packet;
 using Core.Server;
 using Core.Util;
 
@@ -17,6 +18,11 @@ internal class GameServer : BaseServer<GameConnection>
         base.Initialize();
 
         Logger.Info("initialize server...");
+    }
+
+    protected override AbstractPacketResolver<GameConnection> OnRegisterPacketResolver()
+    {
+        return new GamePacketResolver();
     }
 
     protected override void OnNewConnection(GameConnection conn)
