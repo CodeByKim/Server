@@ -17,7 +17,7 @@ namespace Core.Connection
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            _packetResolver = OnRegisterPacketResolver();
+            _packetResolver = OnGetPacketResolver();
         }
 
         public async Task ConnectAsync(string ip, int portNumber)
@@ -29,9 +29,9 @@ namespace Core.Connection
 
         protected override void OnDispatchPacket(PacketHeader header, ArraySegment<byte> payload)
         {
-            _packetResolver.ExecutePacketHandler(this as TConnection, header.PacketId, payload);
+            _packetResolver.OnResolvePacket(this as TConnection, header.PacketId, payload);
         }
 
-        protected abstract AbstractPacketResolver<TConnection> OnRegisterPacketResolver();
+        protected abstract AbstractPacketResolver<TConnection> OnGetPacketResolver();
     }
 }

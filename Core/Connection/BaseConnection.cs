@@ -167,7 +167,7 @@ namespace Core.Connection
             return true;
         }
 
-        protected abstract void OnDispatchPacket(PacketHeader header, ArraySegment<Byte> data);
+        protected abstract void OnDispatchPacket(PacketHeader header, ArraySegment<Byte> payload);
 
         protected abstract void OnDisconnected(BaseConnection conn, DisconnectReason reason);
     }

@@ -6,18 +6,18 @@ using Core.Util;
 using Google.Protobuf;
 using Protocol;
 
-public class GamePacketResolver : AbstractPacketResolver<DummyConnector>
+public class GamePacketResolver : AbstractPacketResolver<GameConnection>
 {
     public GamePacketResolver()
     {
     }
 
-    protected override void OnRegisterPacketHandler(Dictionary<short, AbstractPacketHandler<DummyConnector>> handlers)
+    protected override void OnRegisterPacketHandler(Dictionary<short, AbstractPacketHandler<GameConnection>> handlers)
     {
-        handlers.Add((short)PacketId.PktEchoResult, new PktEchoResultHandler());
+        handlers.Add((short)PacketId.PktEcho, new PktEchoHandler());
     }
 
-    public override void OnResolvePacket(DummyConnector conn, short packetId, ArraySegment<byte> payload)
+    public override void OnResolvePacket(GameConnection conn, short packetId, ArraySegment<byte> payload)
     {
         if (!ContainHandler(packetId))
         {
@@ -29,8 +29,8 @@ public class GamePacketResolver : AbstractPacketResolver<DummyConnector>
 
         switch ((PacketId)packetId)
         {
-            case PacketId.PktEchoResult:
-                packet = new PktEchoResult();
+            case PacketId.PktEcho:
+                packet = new PktEcho();
                 break;
         }
 

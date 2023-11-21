@@ -17,7 +17,7 @@ public class DummyConnector : Connector<DummyConnector>
         Logger.Info($"OnDisconnected: {conn.ID}, Reason: {reason}");
     }
 
-    protected override AbstractPacketResolver<DummyConnector> OnRegisterPacketResolver()
+    protected override AbstractPacketResolver<DummyConnector> OnGetPacketResolver()
     {
         return new GamePacketResolver();
     }

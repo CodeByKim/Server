@@ -14,6 +14,7 @@ namespace Core.Connection
         where TConnection : ClientConnection<TConnection>, new()
     {
         private BaseServer<TConnection> _server;
+        private AbstractPacketResolver<TConnection> _packetResolver;
 
         public ClientConnection() : base()
         {
@@ -24,11 +25,13 @@ namespace Core.Connection
             Initialize(socket);
 
             _server = server;
+
+            _packetResolver = _server.OnGetPacketResolver();
         }
 
-        protected override void OnDispatchPacket(PacketHeader header, ArraySegment<byte> data)
+        protected override void OnDispatchPacket(PacketHeader header, ArraySegment<byte> payload)
         {
-            _server.ParsePacket(this as TConnection, header, data);
+            _packetResolver.OnResolvePacket(this as TConnection, header.PacketId, payload);
         }
 
         protected override void OnDisconnected(BaseConnection conn, DisconnectReason reason)

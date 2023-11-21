@@ -20,7 +20,7 @@ internal class GameServer : BaseServer<GameConnection>
         Logger.Info("initialize server...");
     }
 
-    protected override AbstractPacketResolver<GameConnection> OnRegisterPacketResolver()
+    public override AbstractPacketResolver<GameConnection> OnGetPacketResolver()
     {
         return new GamePacketResolver();
     }

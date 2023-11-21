@@ -16,7 +16,6 @@ namespace Core.Server
     {
         private Acceptor _acceptor;
         private DefaultObjectPool<TConnection> _connectionPool;
-        private AbstractPacketResolver<TConnection> _packetResolver;
 
         public BaseServer(string configPath)
         {
@@ -30,8 +29,6 @@ namespace Core.Server
                                                                  ServerConfig.Instance.ConnectionPoolCount);
             _acceptor.Initialize();
             _acceptor.OnNewClientHandler = AcceptNewClient;
-
-            _packetResolver = OnRegisterPacketResolver();
         }
 
         public void Run()
@@ -56,15 +53,10 @@ namespace Core.Server
             _connectionPool.Return(conn);
         }
 
-        internal void ParsePacket(TConnection conn, in PacketHeader header, ArraySegment<byte> payload)
-        {
-            _packetResolver.ExecutePacketHandler(conn, header.PacketId, payload);
-        }
+        public abstract AbstractPacketResolver<TConnection> OnGetPacketResolver();
 
         protected abstract void OnNewConnection(TConnection conn);
 
         protected abstract void OnDisconnected(TConnection conn, DisconnectReason reason);
-
-        protected abstract AbstractPacketResolver<TConnection> OnRegisterPacketResolver();
     }
 }

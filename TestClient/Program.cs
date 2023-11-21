@@ -30,7 +30,7 @@ internal class Program
 
             connector.Send((short)PacketId.PktEcho, pkt);
 
-            Thread.Sleep(10);
+            Thread.Sleep(100);
         }
 
         Console.ReadLine();
