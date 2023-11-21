@@ -20,7 +20,7 @@ namespace Core.Server
 
         public int ReceiveBufferSize { get; set; } = 15;
 
-        private static ServerConfig _instance;
+        private static ServerConfig _instance = new ServerConfig();
         public static ServerConfig Instance => _instance;
 
         public static void Load(string path)

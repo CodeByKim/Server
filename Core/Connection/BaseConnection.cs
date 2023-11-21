@@ -33,8 +33,7 @@ namespace Core.Connection
 
             _isSending = false;
 
-            //_receiveBuffer = new RingBuffer(ServerConfig.Instance.ReceiveBufferSize);
-            _receiveBuffer = new RingBuffer(15);
+            _receiveBuffer = new RingBuffer(ServerConfig.Instance.ReceiveBufferSize);
         }
 
         public void Send(short packetId, IMessage packet)
