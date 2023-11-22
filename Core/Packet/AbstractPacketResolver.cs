@@ -20,13 +20,13 @@ namespace Core.Packet
             return _packetHandlers.ContainsKey(packetId);
         }
 
-        protected void OnExecute(TConnection conn, short packetId, IMessage packet)
+        internal void Execute(TConnection conn, short packetId, IMessage packet)
         {
             var handler = _packetHandlers[packetId];
             handler.OnHandle(conn, packet);
         }
 
-        public abstract void OnResolvePacket(TConnection conn, short packetId, ArraySegment<byte> payload);
+        public abstract IMessage? OnResolvePacket(TConnection conn, short packetId);
 
         protected abstract void OnRegisterPacketHandler(Dictionary<short, AbstractPacketHandler<TConnection>> handlers);
     }

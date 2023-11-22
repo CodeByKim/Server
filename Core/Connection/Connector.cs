@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
-using System.Threading.Tasks;
+
 using Core.Packet;
 using Core.Server;
 using Core.Util;
+using Google.Protobuf;
 
 namespace Core.Connection
 {
@@ -29,7 +30,17 @@ namespace Core.Connection
 
         protected override void OnDispatchPacket(PacketHeader header, ArraySegment<byte> payload)
         {
-            _packetResolver.OnResolvePacket(this as TConnection, header.PacketId, payload);
+            var conn = this as TConnection;
+            var packetId = header.PacketId;
+            var packet = _packetResolver.OnResolvePacket(conn, packetId);
+            if (packet is null)
+            {
+                Logger.Error($"Not Found Packet Handler, PacketId: {packetId}");
+                return;
+            }
+
+            packet.MergeFrom(payload);
+            _packetResolver.Execute(conn, packetId, packet);
         }
 
         protected abstract AbstractPacketResolver<TConnection> OnGetPacketResolver();

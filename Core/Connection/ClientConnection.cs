@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using Core.Server;
 using Core.Util;
 using Core.Packet;
+using Google.Protobuf;
 
 namespace Core.Connection
 {
@@ -31,7 +32,17 @@ namespace Core.Connection
 
         protected override void OnDispatchPacket(PacketHeader header, ArraySegment<byte> payload)
         {
-            _packetResolver.OnResolvePacket(this as TConnection, header.PacketId, payload);
+            var conn = this as TConnection;
+            var packetId = header.PacketId;
+            var packet = _packetResolver.OnResolvePacket(conn, packetId);
+            if (packet is null)
+            {
+                Logger.Error($"Not Found Packet Handler, PacketId: {packetId}");
+                return;
+            }
+
+            packet.MergeFrom(payload);
+            _packetResolver.Execute(conn, packetId, packet);
         }
 
         protected override void OnDisconnected(BaseConnection conn, DisconnectReason reason)

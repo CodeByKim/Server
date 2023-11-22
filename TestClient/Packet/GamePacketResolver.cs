@@ -17,24 +17,17 @@ public class GamePacketResolver : AbstractPacketResolver<DummyConnector>
         handlers.Add((short)PacketId.PktEchoResult, new PktEchoResultHandler());
     }
 
-    public override void OnResolvePacket(DummyConnector conn, short packetId, ArraySegment<byte> payload)
+    public override IMessage? OnResolvePacket(DummyConnector conn, short packetId)
     {
         if (!ContainHandler(packetId))
-        {
-            Logger.Error($"Not Found Packet Handler, PacketId: {packetId}");
-            return;
-        }
-
-        IMessage packet = null;
+            return null;
 
         switch ((PacketId)packetId)
         {
             case PacketId.PktEchoResult:
-                packet = new PktEchoResult();
-                break;
+                return new PktEchoResult();
         }
 
-        packet.MergeFrom(payload);
-        OnExecute(conn, packetId, packet);
+        return null;
     }
 }
