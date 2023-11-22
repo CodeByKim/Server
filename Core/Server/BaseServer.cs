@@ -8,6 +8,7 @@ using Microsoft.Extensions.ObjectPool;
 using Core.Connection;
 using Core.Util;
 using Core.Packet;
+using Core.Logic;
 
 namespace Core.Server
 {
@@ -16,6 +17,7 @@ namespace Core.Server
     {
         private Acceptor _acceptor;
         private DefaultObjectPool<TConnection> _connectionPool;
+        private List<Room<TConnection>> _rooms;
 
         public BaseServer(string configPath)
         {
@@ -29,11 +31,15 @@ namespace Core.Server
                                                                  ServerConfig.Instance.ConnectionPoolCount);
             _acceptor.Initialize();
             _acceptor.OnNewClientHandler = AcceptNewClient;
+
+            _rooms = new List<Room<TConnection>>();
         }
 
         public void Run()
         {
             _acceptor.Run();
+
+            RunRoomLogic();
         }
 
         internal void AcceptNewClient(Socket socket)
@@ -43,6 +49,10 @@ namespace Core.Server
 
             OnNewConnection(conn);
 
+            // 코드 이상하다.
+            foreach (var room in _rooms)
+                room.Add(conn);
+
             conn.ReceiveAsync();
         }
 
@@ -51,6 +61,18 @@ namespace Core.Server
             OnDisconnected(conn, reason);
 
             _connectionPool.Return(conn);
+        }
+
+        private void RunRoomLogic()
+        {
+            var roomCount = ServerConfig.Instance.RoomCount;
+            for (var i = 0; i < roomCount; i++)
+            {
+                var room = new Room<TConnection>();
+                _rooms.Add(room);
+
+                ThreadPool.QueueUserWorkItem(room.OnRun);
+            }
         }
 
         public abstract AbstractPacketResolver<TConnection> OnGetPacketResolver();

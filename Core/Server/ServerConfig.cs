@@ -20,6 +20,8 @@ namespace Core.Server
 
         public int ReceiveBufferSize { get; set; } = 15;
 
+        public int RoomCount { get; set; } = 1;
+
         private static ServerConfig _instance = new ServerConfig();
         public static ServerConfig Instance => _instance;
 
