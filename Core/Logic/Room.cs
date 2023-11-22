@@ -25,8 +25,6 @@ namespace Core.Logic
         {
             while (true)
             {
-                Logger.Info("Room OnRun...");
-
                 Update();
 
                 Thread.Sleep(100);
