@@ -38,7 +38,9 @@ namespace Core.Connection
 
         internal void ConsumePacket()
         {
-            while (_packetQueue.Count > 0)
+            var packetCount = _packetQueue.Count;
+
+            for (var i = 0; i < packetCount; i++)
             {
                 Tuple<short, IMessage> packetBundle;
                 if (!_packetQueue.TryDequeue(out packetBundle))

@@ -1,4 +1,5 @@
 ﻿using Core.Connection;
+using Core.Job;
 using Core.Util;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Logic
 {
-    internal class Room<TConnection>
+    internal class Room<TConnection> : JobExecutor
         where TConnection : ClientConnection<TConnection>, new()
     {
         private List<TConnection> _connectons;
@@ -25,6 +26,8 @@ namespace Core.Logic
         {
             foreach (var conn in _connectons)
                 conn.ConsumePacket();
+
+            ExecuteJob();
         }
     }
 }
