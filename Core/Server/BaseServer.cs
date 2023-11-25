@@ -17,7 +17,9 @@ namespace Core.Server
     {
         private Acceptor _acceptor;
         private DefaultObjectPool<TConnection> _connectionPool;
-        private List<Room<TConnection>> _rooms;
+
+        private List<AbstractSystemLogic<TConnection>> _systemLogics;
+        private List<AbstractGameLogic<TConnection>> _gameLogics;
 
         public BaseServer(string configPath)
         {
@@ -32,26 +34,31 @@ namespace Core.Server
             _acceptor.Initialize();
             _acceptor.OnNewClientHandler = AcceptNewClient;
 
-            _rooms = new List<Room<TConnection>>();
+            _systemLogics = new List<AbstractSystemLogic<TConnection>>();
+            _gameLogics = new List<AbstractGameLogic<TConnection>>();
+
+            _systemLogics.Add(new RoomControlLogic<TConnection>(this));
         }
 
         public void Run()
         {
             _acceptor.Run();
 
-            RunRoomLogic();
+            foreach (var logic in _systemLogics)
+                logic.Run();
+
+            foreach (var logic in _gameLogics)
+                logic.Run();
         }
 
         internal void AcceptNewClient(Socket socket)
         {
-            var conn = _connectionPool.Get();
-            conn.Initialize(socket, this);
+            var conn = AllocConnection(socket);
+
+            foreach (var logic in _systemLogics)
+                logic.OnNewConnection(conn);
 
             OnNewConnection(conn);
-
-            // 코드 이상하다.
-            foreach (var room in _rooms)
-                room.Add(conn);
 
             conn.ReceiveAsync();
         }
@@ -63,16 +70,12 @@ namespace Core.Server
             _connectionPool.Return(conn);
         }
 
-        private void RunRoomLogic()
+        private TConnection AllocConnection(Socket socket)
         {
-            var roomCount = ServerConfig.Instance.RoomCount;
-            for (var i = 0; i < roomCount; i++)
-            {
-                var room = new Room<TConnection>();
-                _rooms.Add(room);
+            var conn = _connectionPool.Get();
+            conn.Initialize(socket, this);
 
-                ThreadPool.QueueUserWorkItem(room.OnRun);
-            }
+            return conn;
         }
 
         public abstract AbstractPacketResolver<TConnection> OnGetPacketResolver();

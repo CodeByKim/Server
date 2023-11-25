@@ -21,17 +21,7 @@ namespace Core.Logic
             _connectons.Add(conn);
         }
 
-        internal void OnRun(object param)
-        {
-            while (true)
-            {
-                Update();
-
-                Thread.Sleep(10);
-            }
-        }
-
-        private void Update()
+        internal void OnUpdate()
         {
             foreach (var conn in _connectons)
                 conn.ConsumePacket();
