@@ -17,6 +17,24 @@ namespace Core.Logic
             _connectons = new List<TConnection>();
         }
 
+        internal override void Initialize()
+        {
+            base.Initialize();
+
+            // 테스트 코드
+            // 나중에 지워야 함
+            for (int i = 0; i <10; i++)
+            {
+                var count = i;
+                PushJob(
+                    TimeSpan.FromSeconds(i),
+                    () =>
+                    {
+                        Logger.Info($"Run Task... {count}");
+                    });
+            }
+        }
+
         internal void Add(TConnection conn)
         {
             _connectons.Add(conn);

@@ -26,6 +26,8 @@ namespace Core.Logic
             for (var i = 0; i < roomCount; i++)
             {
                 var room = new Room<TConnection>();
+                room.Initialize();
+
                 _rooms.Add(room);
             }
         }
