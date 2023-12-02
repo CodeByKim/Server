@@ -9,14 +9,11 @@ namespace Core.Job
     {
         private ConcurrentQueue<Action> _jobQueue;
         private PriorityQueue<Action, DateTime> _scheduleJobQueue;
-        private AutoResetEvent _autoResetEvent;
-        private Thread _thread;     //스레드를 개별로 가지고 있는건 안좋은데
 
         public JobExecutor()
         {
             _jobQueue = new ConcurrentQueue<Action>();
             _scheduleJobQueue = new PriorityQueue<Action, DateTime>();
-            _autoResetEvent = new AutoResetEvent(false);
         }
 
         public void PushJob(Action job)
@@ -30,20 +27,21 @@ namespace Core.Job
                 () =>
                 {
                     _scheduleJobQueue.Enqueue(job, DateTime.Now + startTime);
-
-                    _autoResetEvent.Set();
                 });
         }
 
         internal virtual void Initialize()
         {
-            _thread = new Thread(ExecuteScheduleJob);
-            _thread.IsBackground = true;
-
-            _thread.Start();
         }
 
-        protected void ExecuteJob()
+        protected void FlushJob()
+        {
+            ExecuteJob();
+
+            ExecuteScheduleJob();
+        }
+
+        private void ExecuteJob()
         {
             var jobCount = _jobQueue.Count;
 
@@ -59,28 +57,26 @@ namespace Core.Job
 
         private void ExecuteScheduleJob()
         {
-            TimeSpan tolerance = TimeSpan.FromMilliseconds(10);
+            var threshold = TimeSpan.FromMilliseconds(10);
+            var curTime = DateTime.Now;
 
             while (true)
             {
-                Action? action;
+                Action action;
                 DateTime taskStartTime;
 
                 if (!_scheduleJobQueue.TryPeek(out action, out taskStartTime))
-                {
-                    _autoResetEvent.WaitOne();
-                    continue;
-                }
+                    return;
 
-                var diff = taskStartTime - DateTime.Now;
-                if (diff < tolerance)
+                var diffTime = taskStartTime - curTime;
+                if (diffTime < threshold)
                 {
                     var task = _scheduleJobQueue.Dequeue();
                     PushJob(task);
                 }
                 else
                 {
-                    _autoResetEvent.WaitOne(diff);
+                    return;
                 }
             }
         }

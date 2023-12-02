@@ -45,7 +45,7 @@ namespace Core.Logic
             foreach (var conn in _connectons)
                 conn.ConsumePacket();
 
-            ExecuteJob();
+            FlushJob();
         }
     }
 }
