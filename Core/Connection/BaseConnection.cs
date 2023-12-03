@@ -69,6 +69,11 @@ namespace Core.Connection
             try
             {
                 var byteTransfer = await _socket.ReceiveAsync(writableSegments);
+                if (byteTransfer == 0)
+                {
+                    ForceDisconnect(DisconnectReason.RemoteClosing);
+                    return;
+                }
 
                 ProcessReceive(byteTransfer);
 
